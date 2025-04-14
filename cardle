@@ -1,0 +1,105 @@
+import random
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import os
+
+DEBUG = False
+
+def loadDict(file_path):
+
+    with open(file_path) as f:
+        words = [line.strip().lower() for line in f]
+    return words
+
+def isValidGuess(guess, guesses):
+
+    return guess in guesses
+
+def evaluateGuess(guess, word):
+   
+    feedback = ""
+    for i in range(min(5, len(word), len(guess))):
+        if guess[i] == word[i]:
+            feedback += "\033[32m" + guess[i]
+        else:
+            if guess[i] in word:
+                feedback += "\033[33m" + guess[i]
+            else:
+                feedback += "\033[0m" + guess[i]
+    return feedback + "\033[0m"
+
+def show_image(image_path):
+
+    if DEBUG:
+        print("Attempting to show image (debug mode enabled).")
+        
+    if not os.path.exists(image_path):
+        if DEBUG:
+            print("Image file not found.")
+        return
+    try:
+        img = mpimg.imread(image_path)
+        plt.imshow(img)
+        plt.axis('off') 
+        plt.show(block=True)
+    except Exception as e:
+        if DEBUG:
+            print("Error displaying image:", e)
+
+def cardle(guesses, answers):
+
+    print("Cardle")
+    secret_car = random.choice(answers)
+    
+    base_path = "C:/Users/teeja/source/repos/wordlegame/wordlegame/cars/"
+    folder_path = f"{base_path}{secret_car}/"
+    
+    path1 = f"{folder_path}1.png"
+    path2 = f"{folder_path}2.png"
+    path3 = f"{folder_path}3.png"
+    path4 = f"{folder_path}4.png"
+    path5 = f"{folder_path}5.png"
+    path6 = f"{folder_path}{secret_car}6.png"
+    
+    attempts = 1
+    maxAttempts = 6
+
+    print("Hint for attempt 1:")
+    show_image(path1)
+    
+    while attempts <= maxAttempts:
+        guess = input(f"Enter guess number #{attempts}: ").lower()
+        
+        if not isValidGuess(guess, guesses):
+            print("Invalid Guess. Please enter a valid car name.")
+            continue
+        
+        if guess == secret_car:
+            print("You win!! The car was:", secret_car)
+            show_image(path6)
+            break
+        
+        feedback = evaluateGuess(guess, secret_car)
+        print(feedback)
+        
+        if attempts == maxAttempts:
+            print("You lost. The car was:", secret_car)
+            show_image(path6)
+            break
+        
+        attempts += 1
+        if attempts == 2:
+            show_image(path2)
+        elif attempts == 3:
+            show_image(path3)
+        elif attempts == 4:
+            show_image(path4)
+        elif attempts == 5:
+            show_image(path5)
+
+guesses = loadDict("guesses.txt")
+answers = loadDict("answers.txt")
+
+cardle(guesses, answers)
+
+ 
